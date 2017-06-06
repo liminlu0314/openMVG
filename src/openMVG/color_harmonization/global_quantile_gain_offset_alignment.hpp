@@ -1,9 +1,11 @@
-
 // Copyright (c) 2013, 2014 Pierre MOULON.
 
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#ifndef OPENMVG_COLOR_HARMONIZATION_GLOBAL_QUANTILE_GAIN_OFFSET_ALIGNMENT_HPP
+#define OPENMVG_COLOR_HARMONIZATION_GLOBAL_QUANTILE_GAIN_OFFSET_ALIGNMENT_HPP
+
 
 //------------------
 //-- Bibliography --
@@ -14,10 +16,10 @@
 //- Conference: CVMP.
 
 //-- Linear programming
-#include "openMVG/linearProgramming/linearProgrammingInterface.hpp"
-#include "openMVG/linearProgramming/linearProgrammingOSI_X.hpp"
-#include "openMVG/linearProgramming/linearProgrammingMOSEK.hpp"
 #include "openMVG/linearProgramming/bisectionLP.hpp"
+#include "openMVG/linearProgramming/linearProgrammingInterface.hpp"
+#include "openMVG/linearProgramming/linearProgrammingMOSEK.hpp"
+#include "openMVG/linearProgramming/linearProgrammingOSI_X.hpp"
 
 namespace openMVG {
 namespace lInfinity {
@@ -27,7 +29,7 @@ struct relativeColorHistogramEdge
   size_t I,J;
   std::vector<size_t> histoI, histoJ;
 
-  relativeColorHistogramEdge() {}
+  relativeColorHistogramEdge() = default ;
 
   relativeColorHistogramEdge(
     size_t i, size_t j,
@@ -60,7 +62,7 @@ static void cdf(const std::vector<T> & vec_df, std::vector<T> & vec_cdf)
       vec_cdf[i] = vec_cdf[i] + vec_cdf[i-1];
 }
 
-};
+}; // namespace histogram
 
 // Implementation of the formula (1) of [1] with 10 quantiles.
 //-- L_infinity alignment of pair of histograms over a graph thanks to a linear program.
@@ -217,7 +219,7 @@ struct ConstraintBuilder_GainOffset
   {
     //Count the number of images
     std::set<size_t> countSet;
-    for (int i = 0; i  < _vec_relative.size(); ++i)
+    for (size_t i = 0; i  < _vec_relative.size(); ++i)
     {
       countSet.insert(_vec_relative[i].I);
       countSet.insert(_vec_relative[i].J);
@@ -233,17 +235,17 @@ struct ConstraintBuilder_GainOffset
       _Nima,
       _vec_relative,
       _vec_indexToFix,
-      constraint._constraintMat,
-      constraint._Cst_objective,
-      constraint._vec_sign,
-      constraint._vec_cost,
-      constraint._vec_bounds);
+      constraint.constraint_mat_,
+      constraint.constraint_objective_,
+      constraint.vec_sign_,
+      constraint.vec_cost_,
+      constraint.vec_bounds_);
 
     // it's a minimization problem over the gamma variable
-    constraint._bminimize = true;
+    constraint.bminimize_ = true;
 
     //-- Setup additional information about the Linear Program constraint
-    constraint._nbParams = _Nima * 2 + 1;
+    constraint.nbParams_ = _Nima * 2 + 1;
     return true;
   }
   // Internal data
@@ -253,5 +255,7 @@ struct ConstraintBuilder_GainOffset
 };
 
 
-}; // namespace lInfinity
-}; // namespace openMVG
+} // namespace lInfinity
+} // namespace openMVG
+
+#endif // OPENMVG_COLOR_HARMONIZATION_GLOBAL_QUANTILE_GAIN_OFFSET_ALIGNMENT_HPP

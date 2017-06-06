@@ -1,6 +1,6 @@
 // Ceres Solver - A fast non-linear least squares minimizer
-// Copyright 2013 Google Inc. All rights reserved.
-// http://code.google.com/p/ceres-solver/
+// Copyright 2015 Google Inc. All rights reserved.
+// http://ceres-solver.org/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -36,6 +36,8 @@
 #include "ceres/problem_impl.h"
 
 namespace ceres {
+
+using std::vector;
 
 Problem::Problem() : problem_impl_(new internal::ProblemImpl) {}
 Problem::Problem(const Problem::Options& options)
@@ -225,11 +227,11 @@ int Problem::NumResiduals() const {
 
 int Problem::ParameterBlockSize(const double* parameter_block) const {
   return problem_impl_->ParameterBlockSize(parameter_block);
-};
+}
 
 int Problem::ParameterBlockLocalSize(const double* parameter_block) const {
   return problem_impl_->ParameterBlockLocalSize(parameter_block);
-};
+}
 
 bool Problem::HasParameterBlock(const double* values) const {
   return problem_impl_->HasParameterBlock(values);
@@ -249,6 +251,16 @@ void Problem::GetParameterBlocksForResidualBlock(
     vector<double*>* parameter_blocks) const {
   problem_impl_->GetParameterBlocksForResidualBlock(residual_block,
                                                     parameter_blocks);
+}
+
+const CostFunction* Problem::GetCostFunctionForResidualBlock(
+    const ResidualBlockId residual_block) const {
+  return problem_impl_->GetCostFunctionForResidualBlock(residual_block);
+}
+
+const LossFunction* Problem::GetLossFunctionForResidualBlock(
+    const ResidualBlockId residual_block) const {
+  return problem_impl_->GetLossFunctionForResidualBlock(residual_block);
 }
 
 void Problem::GetResidualBlocksForParameterBlock(

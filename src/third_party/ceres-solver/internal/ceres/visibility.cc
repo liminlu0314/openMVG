@@ -1,6 +1,6 @@
 // Ceres Solver - A fast non-linear least squares minimizer
-// Copyright 2010, 2011, 2012 Google Inc. All rights reserved.
-// http://code.google.com/p/ceres-solver/
+// Copyright 2015 Google Inc. All rights reserved.
+// http://ceres-solver.org/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -49,6 +49,12 @@
 namespace ceres {
 namespace internal {
 
+using std::make_pair;
+using std::max;
+using std::pair;
+using std::set;
+using std::vector;
+
 void ComputeVisibility(const CompressedRowBlockStructure& block_structure,
                        const int num_eliminate_blocks,
                        vector< set<int> >* visibility) {
@@ -76,7 +82,8 @@ void ComputeVisibility(const CompressedRowBlockStructure& block_structure,
   }
 }
 
-Graph<int>* CreateSchurComplementGraph(const vector<set<int> >& visibility) {
+WeightedGraph<int>* CreateSchurComplementGraph(
+    const vector<set<int> >& visibility) {
   const time_t start_time = time(NULL);
   // Compute the number of e_blocks/point blocks. Since the visibility
   // set for each e_block/camera contains the set of e_blocks/points
@@ -122,7 +129,7 @@ Graph<int>* CreateSchurComplementGraph(const vector<set<int> >& visibility) {
     }
   }
 
-  Graph<int>* graph = new Graph<int>();
+  WeightedGraph<int>* graph = new WeightedGraph<int>;
 
   // Add vertices and initialize the pairs for self edges so that self
   // edges are guaranteed. This is needed for the Canonical views

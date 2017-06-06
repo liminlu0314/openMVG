@@ -1,6 +1,6 @@
 // Ceres Solver - A fast non-linear least squares minimizer
-// Copyright 2013 Google Inc. All rights reserved.
-// http://code.google.com/p/ceres-solver/
+// Copyright 2015 Google Inc. All rights reserved.
+// http://ceres-solver.org/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -64,7 +64,7 @@ struct SingleLinkageClusteringOptions {
 // identified by the algorithm.
 int ComputeSingleLinkageClustering(
     const SingleLinkageClusteringOptions& options,
-    const Graph<int>& graph,
+    const WeightedGraph<int>& graph,
     HashMap<int, int>* membership);
 
 }  // namespace internal

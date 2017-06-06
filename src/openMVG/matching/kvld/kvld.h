@@ -1,5 +1,5 @@
-#ifndef KVLD_H
-#define KVLD_H
+#ifndef OPENMVG_MATCHING_KVLD_H
+#define OPENMVG_MATCHING_KVLD_H
 /** @Main KVLD algorithm implementation
  ** @Containing scale image pyramid, VLD structure and KVLD algorithm
  ** @author Zhe Liu
@@ -56,17 +56,20 @@ struct KvldParameters
 // magnitudes: store gradient norms of pixels of each scale image into a vector of images
 struct ImageScale
 {
-	std::vector< Image< float > > angles;
-	std::vector< Image< float > > magnitudes;
+	std::vector< openMVG::image::Image< float > > angles;
+  std::vector< openMVG::image::Image< float > > magnitudes;
 	std::vector< double > ratios;
 	double radius_size;
 	double step;
 
-  ImageScale( const Image< float >& I,double r = 5.0 );
+  ImageScale(const openMVG::image::Image< float >& I, double r = 5.0);
 	int getIndex( const double r )const;
 
 private:
-  void GradAndNorm( const Image< float >& I,  Image< float >& angle, Image< float >& m );
+  void GradAndNorm(
+    const openMVG::image::Image< float >& I,
+    openMVG::image::Image< float >& angle,
+    openMVG::image::Image< float >& m);
 };
 
 //====== VLD structures ======//
@@ -88,14 +91,16 @@ public:
 	template< typename T >
 	VLD( const ImageScale& series, T const& P1, T const& P2 );
 //=========================================class functions==============================================//
-	inline double get_orientation()const
-	{
-		float dy = end_point[ 1 ] - begin_point[ 1 ];
-		float	dx = end_point[ 0 ] - begin_point[ 0 ];
+  inline double get_orientation()const
+  {
+		const float dy = end_point[ 1 ] - begin_point[ 1 ];
+		const float	dx = end_point[ 0 ] - begin_point[ 0 ];
 		float angle;
-		anglefrom( dx, dy, angle );
-		return angle;
-	}
+		if (anglefrom( dx, dy, angle ))
+			return angle;
+		else
+			return 0.0;
+  }
 	inline double difference( const  VLD& vld2 )const
 	{
 		double diff[ 2 ];
@@ -109,11 +114,11 @@ public:
     {
 		  for( int j = 0; j < subdirection; j++ )
       {// term of descriptor
-        diff[ 0 ] += abs( descriptor[ i * subdirection + j ] - vld2.descriptor[ i * subdirection + j ] );
+        diff[ 0 ] += std::abs( descriptor[ i * subdirection + j ] - vld2.descriptor[ i * subdirection + j ] );
       }
 			//term of main SIFT like orientation
-			diff[ 1 ] += std::min( abs( principleAngle[ i ] - vld2.principleAngle[ i ] ),
-                             binNum - abs( principleAngle[ i ] - vld2.principleAngle[ i ] ) ) * ( weight[ i ] + vld2.weight[ i ] );// orientation term
+			diff[ 1 ] += std::min( std::abs( principleAngle[ i ] - vld2.principleAngle[ i ] ),
+			  binNum - std::abs( principleAngle[ i ] - vld2.principleAngle[ i ] ) ) * ( weight[ i ] + vld2.weight[ i ] );// orientation term
     }
 
 		diff[ 0 ] *= 0.36;
@@ -162,32 +167,22 @@ public:
 //        otherwise, it presents the average photometric consistency score with its neighbor matches.
 //
 //E: gvld(or vld)-consistency matrix, for illustration reason, it has been externalized as an input of KVLD. it should be initialized to be a matches.size*matche.sizes table with all equal to -1
-//   e.g.  libNumerics::matrix<int> E = libNumerics::matrix<int>::ones(matchesPair.size(),matchesPair.size())*(-1);
+//   e.g.  Mat E = Mat::ones(matchesPair.size(),matchesPair.size())*(-1);
 //
 //valide: indices of whether the i th match in the initial match list is selected, for illustration reason, it has been externalized as an input of KVLD. it should be initialized to be a
 //    matches.size vector with all equal to true.  e.g.  std::vector<bool> valide(size, true);
 //
 //kvldParameters: container of minimum inlier rate, the value of K (=3 initially) and geometric verification flag (true initially)
 
-float KVLD( const Image< float >& I1,
-            const Image< float >& I2,
-            std::vector< openMVG::SIOPointFeature >& F1,
-            std::vector< openMVG::SIOPointFeature >& F2,
-            const std::vector< Pair >& matches,
-            std::vector< Pair >& matchesFiltered,
-            std::vector< double >& score,
-            openMVG::Mat& E,
-            std::vector< bool >& valide,
-            KvldParameters& kvldParameters );
+float KVLD(const openMVG::image::Image< float >& I1,
+  const openMVG::image::Image< float >& I2,
+  const std::vector<openMVG::features::SIOPointFeature> & F1,
+  const std::vector<openMVG::features::SIOPointFeature> & F2,
+  const std::vector< openMVG::Pair >& matches,
+  std::vector< openMVG::Pair >& matchesFiltered,
+  std::vector< double >& score,
+  openMVG::Mat& E,
+  std::vector< bool >& valide,
+  KvldParameters& kvldParameters );
 
-
-//====================KVLD interface======================//
-void writeResult( const std::string & output,
-                  const std::vector< openMVG::SIOPointFeature >& F1,
-                  const std::vector< openMVG::SIOPointFeature >& F2,
-                  const std::vector< Pair >& matches,
-                  const std::vector< Pair >& matchesFiltered,
-                  const std::vector< double >& score );
-
-
-#endif //KVLD_H
+#endif // OPENMVG_MATCHING_KVLD_H

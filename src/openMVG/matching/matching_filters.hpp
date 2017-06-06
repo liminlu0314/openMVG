@@ -5,10 +5,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef OPENMVG_MATCHING_MATCHINGFILTERS_H
-#define OPENMVG_MATCHING_MATCHINGFILTERS_H
+#ifndef OPENMVG_MATCHING_MATCHING_FILTERS_HPP
+#define OPENMVG_MATCHING_MATCHING_FILTERS_HPP
 
 #include "openMVG/matching/indMatch.hpp"
+
 #include <algorithm>
 #include <cassert>
 #include <iterator>
@@ -36,21 +37,24 @@ using namespace std;
   * \return void.
   */
 template <typename DataInputIterator>
-static void NNdistanceRatio( DataInputIterator first, // distance start
-                        DataInputIterator last,  // distance end
-                        int NN, // Number of neighbor in iterator sequence (minimum required 2)
-                        vector<int> & vec_ratioOkIndex, // output (index that respect NN dist Ratio)
-                        float fratio = 0.6f) // ratio value
+inline void NNdistanceRatio
+(
+  DataInputIterator first, // distance start
+  DataInputIterator last,  // distance end
+  int NN, // Number of neighbor in iterator sequence (minimum required 2)
+  std::vector<int> & vec_ratioOkIndex, // output (index that respect NN dist Ratio)
+  float fratio = 0.6f) // ratio value
 {
   assert( NN >= 2);
 
-  vec_ratioOkIndex.clear();
   const size_t n = std::distance(first,last);
+  vec_ratioOkIndex.clear();
+  vec_ratioOkIndex.reserve(n/NN);
   DataInputIterator iter = first;
-  for(size_t i=0; i < n/NN; ++i, advance(iter, NN))
+  for(size_t i=0; i < n/NN; ++i, std::advance(iter, NN))
   {
     DataInputIterator iter2 = iter;
-    advance(iter2,1);
+    std::advance(iter2, 1);
     if ( (*iter) < fratio * (*iter2))
       vec_ratioOkIndex.push_back(static_cast<int>(i));
   }
@@ -71,7 +75,7 @@ static void NNdistanceRatio( DataInputIterator first, // distance start
   * \return void.
   */
 // TODO
-static void SymmetricMatches(const vector<int> & vec_matches,
+inline void SymmetricMatches(const vector<int> & vec_matches,
   const vector<int> & vec_reversematches,
   int NN,
   vector<int> & vec_goodIndex)
@@ -101,7 +105,7 @@ static void SymmetricMatches(const vector<int> & vec_matches,
   * \return void.
   */
 template <typename Iterator, typename Type>
-static void IntersectMatches( Iterator aStart, Iterator aEnd,
+inline void IntersectMatches( Iterator aStart, Iterator aEnd,
                        Iterator bStart, Iterator bEnd,
                        vector<Type> & vec_out)
 {
@@ -122,7 +126,7 @@ enum eMatchFilter
   MATCHFILER_SYM_AND_NNDISTANCERATIO = MATCHFILTER_SYMMETRIC | MATCHFILTER_NNDISTANCERATIO
 };
 
-static void Filter( int NN,
+inline void Filter( int NN,
        const vector<int> & vec_Matches01,
        const vector<float> & vec_distance01,
        const vector<int> & vec_Matches10,
@@ -194,7 +198,7 @@ static void Filter( int NN,
   // Remove multi-index
   {
     std::sort(vec_outIndex.begin(), vec_outIndex.end());
-    std::vector<IndMatch>::iterator end = std::unique(vec_outIndex.begin(), vec_outIndex.end());
+    auto end = std::unique(vec_outIndex.begin(), vec_outIndex.end());
     if(end != vec_outIndex.end()) {
       vec_outIndex.erase(end, vec_outIndex.end());
     }
@@ -204,4 +208,4 @@ static void Filter( int NN,
 }  // namespace matching
 }  // namespace openMVG
 
-#endif // OPENMVG_MATCHING_MATCHINGFILTERS_H
+#endif // OPENMVG_MATCHING_MATCHING_FILTERS_HPP

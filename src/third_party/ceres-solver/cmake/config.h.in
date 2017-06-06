@@ -1,6 +1,6 @@
 // Ceres Solver - A fast non-linear least squares minimizer
-// Copyright 2014 Google Inc. All rights reserved.
-// http://code.google.com/p/ceres-solver/
+// Copyright 2015 Google Inc. All rights reserved.
+// http://ceres-solver.org/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -41,6 +41,9 @@
 #ifndef CERES_PUBLIC_INTERNAL_CONFIG_H_
 #define CERES_PUBLIC_INTERNAL_CONFIG_H_
 
+// If defined, use the LGPL code in Eigen.
+@CERES_USE_EIGEN_SPARSE@
+
 // If defined, Ceres was compiled without LAPACK.
 @CERES_NO_LAPACK@
 
@@ -57,6 +60,9 @@
 // routines.
 @CERES_NO_CUSTOM_BLAS@
 
+// If defined, Ceres was compiled with C++11.
+@CERES_USE_CXX11@
+
 // If defined, Ceres was compiled without multithreading support.
 @CERES_NO_THREADS@
 // If defined Ceres was compiled with OpenMP multithreading support.
@@ -72,10 +78,6 @@
 @CERES_STD_UNORDERED_MAP_IN_TR1_NAMESPACE@
 @CERES_TR1_UNORDERED_MAP@
 @CERES_NO_UNORDERED_MAP@
-
-// If defined Ceres was compiled for Android with noalias() removed from
-// matrix-matrix multiplies to work around a bug in the Android NDK.
-@CERES_WORK_AROUND_ANDROID_NDK_COMPILER_BUG@
 
 // If defined, the memory header is in <tr1/memory>, otherwise <memory>.
 @CERES_TR1_MEMORY_HEADER@

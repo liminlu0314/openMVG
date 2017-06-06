@@ -5,11 +5,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef OPENMVG_MATCHING_MATCHINGINTERFACE_H
-#define OPENMVG_MATCHING_MATCHINGINTERFACE_H
+#ifndef OPENMVG_MATCHING_MATCHING_INTERFACE_HPP
+#define OPENMVG_MATCHING_MATCHING_INTERFACE_HPP
+
+#include "openMVG/matching/indMatch.hpp"
 
 #include <vector>
-#include "openMVG/numeric/numeric.h"
 
 namespace openMVG {
 namespace matching {
@@ -20,11 +21,12 @@ template < typename Scalar, typename Metric >
 class ArrayMatcher
 {
   public:
-  typedef typename Metric::ResultType DistanceType;
-  typedef Metric MetricT;
+  using ScalarT = Scalar;
+  using DistanceType = typename Metric::ResultType;
+  using MetricT = Metric;
 
-  ArrayMatcher() {}
-  virtual ~ArrayMatcher() {};
+  ArrayMatcher() = default ;
+  virtual ~ArrayMatcher() = default ;
 
   /**
    * Build the matching structure
@@ -56,21 +58,20 @@ class ArrayMatcher
    *
    * \param[in]   query     The query array
    * \param[in]   nbQuery   The number of query rows
-   * \param[out]  indice    The indices of arrays in the dataset that
-   *  have been computed as the nearest arrays.
-   * \param[out]  distance  The distances between the matched arrays.
+   * \param[out]  indices   The corresponding (query, neighbor) indices
+   * \param[out]  distances The distances between the matched arrays.
    * \param[out]  NN        The number of maximal neighbor that could
    *  will be searched.
    *
    * \return True if success.
    */
   virtual bool SearchNeighbours( const Scalar * query, int nbQuery,
-                                  vector<int> * indice,
-                                  vector<DistanceType> * distance,
+                                  IndMatches * indices,
+                                  std::vector<DistanceType> * distances,
                                   size_t NN)=0;
 };
 
 }  // namespace matching
 }  // namespace openMVG
 
-#endif  // OPENMVG_MATCHING_MATCHINGINTERFACE_H
+#endif  // OPENMVG_MATCHING_MATCHING_INTERFACE_HPP

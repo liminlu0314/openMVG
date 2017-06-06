@@ -1,6 +1,6 @@
 // Ceres Solver - A fast non-linear least squares minimizer
-// Copyright 2014 Google Inc. All rights reserved.
-// http://code.google.com/p/ceres-solver/
+// Copyright 2015 Google Inc. All rights reserved.
+// http://ceres-solver.org/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -39,6 +39,9 @@
 namespace ceres {
 namespace internal {
 
+using std::pair;
+using std::vector;
+
 ScratchEvaluatePreparer*
 DynamicCompressedRowJacobianWriter::CreateEvaluatePreparers(int num_threads) {
   return ScratchEvaluatePreparer::Create(*program_, num_threads);
@@ -54,8 +57,15 @@ SparseMatrix* DynamicCompressedRowJacobianWriter::CreateJacobian() const {
                                            num_effective_parameters,
                                            0);
 
-  CompressedRowJacobianWriter::PopulateJacobianRowAndColumnBlockVectors(
-      program_, jacobian);
+  vector<int>* row_blocks = jacobian->mutable_row_blocks();
+  for (int i = 0; i < jacobian->num_rows(); ++i) {
+    row_blocks->push_back(1);
+  }
+
+  vector<int>* col_blocks = jacobian->mutable_col_blocks();
+  for (int i = 0; i < jacobian->num_cols(); ++i) {
+    col_blocks->push_back(1);
+  }
 
   return jacobian;
 }

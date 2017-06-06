@@ -26,10 +26,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include "openMVG/multiview/solver_essential_five_point.hpp"
 #include "openMVG/multiview/solver_essential_kernel.hpp"
 #include "openMVG/multiview/solver_fundamental_kernel.hpp"
 #include "openMVG/numeric/poly.h"
-#include "openMVG/multiview/solver_essential_five_point.hpp"
+
 #include <cassert>
 
 namespace openMVG {
@@ -56,8 +57,8 @@ void EightPointRelativePoseSolver::Solve(const Mat &x1, const Mat &x2, vector<Ma
   if (x1.cols() > 8) {
     Eigen::JacobiSVD<Mat3> USV(E, Eigen::ComputeFullU | Eigen::ComputeFullV);
     Vec3 d = USV.singularValues();
-    double a = d[0];
-    double b = d[1];
+    const double a = d[0];
+    const double b = d[1];
     d << (a+b)/2., (a+b)/2., 0.0;
     E = USV.matrixU() * d.asDiagonal() * USV.matrixV().transpose();
   }

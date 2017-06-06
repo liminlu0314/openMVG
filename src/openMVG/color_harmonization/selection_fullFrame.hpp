@@ -5,8 +5,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef OPENMVG_COLORHARMONIZATION_FULLFRAME_H
-#define OPENMVG_COLORHARMONIZATION_FULLFRAME_H
+#ifndef OPENMVG_COLOR_HARMONIZATION_SELECTION_FULLFRAME_HPP
+#define OPENMVG_COLOR_HARMONIZATION_SELECTION_FULLFRAME_HPP
 
 #include "openMVG/color_harmonization/selection_interface.hpp"
 
@@ -21,7 +21,7 @@ public:
         commonDataByPair( sLeftImage, sRightImage )
   {}
 
-  virtual ~commonDataByPair_FullFrame() {}
+  ~commonDataByPair_FullFrame() override = default ; 
 
   /**
    * Put masks to white, all image is considered as valid pixel selection
@@ -31,10 +31,10 @@ public:
    *
    * \return True.
    */
-  virtual bool computeMask( Image< unsigned char > & maskLeft, Image< unsigned char > & maskRight )
+  bool computeMask( image::Image< unsigned char > & maskLeft, image::Image< unsigned char > & maskRight ) override 
   {
-    maskLeft.fill( WHITE );
-    maskRight.fill( WHITE );
+    maskLeft.fill( image::WHITE );
+    maskRight.fill( image::WHITE );
     return true;
   }
 

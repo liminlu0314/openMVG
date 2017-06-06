@@ -25,8 +25,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef OPENMVG_ROBUST_ESTIMATION_LINEKERNEL_TEST_H_
-#define OPENMVG_ROBUST_ESTIMATION_LINEKERNEL_TEST_H_
+#ifndef OPENMVG_ROBUST_ESTIMATION_LINEKERNEL_TEST_HPP
+#define OPENMVG_ROBUST_ESTIMATION_LINEKERNEL_TEST_HPP
 
 #include "openMVG/numeric/numeric.h"
 
@@ -43,28 +43,26 @@ struct LineSolver {
     X.col(0).setOnes();
     X.col(1) = x.row(0).transpose();
     Mat A(X.transpose() * X);
-    Vec b(X.transpose() * x.row(1).transpose());
-    Vec2 ba;
+    const Vec b(X.transpose() * x.row(1).transpose());
     Eigen::JacobiSVD<Mat> svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
-    ba = svd.solve(b);
-    lines->push_back(ba);
+    lines->push_back(svd.solve(b));
   }
 };
 
 struct pointToLineError {
   static double Error(const Vec2 &lineEq, const Vec2 &xs) {
-    double b = lineEq[0];
-    double a = lineEq[1];
-    double x = xs[0];
-    double y = xs[1];
-    double e = y - (a*x + b);
+    const double b = lineEq[0];
+    const double a = lineEq[1];
+    const double x = xs[0];
+    const double y = xs[1];
+    const double e = y - (a*x + b);
     return e*e;
   }
 };
 
 // Embed the basic solver to fit from sampled point set
 struct LineKernel {
-  typedef Vec2 Model;  // line parametrization: a, b;
+  using Model =  Vec2;  // line parametrization: a, b;
   enum { MINIMUM_SAMPLES = 2 };
 
   LineKernel(const Mat2X &xs) : xs_(xs) {}
@@ -74,7 +72,7 @@ struct LineKernel {
   void Fit(const std::vector<size_t> &samples, std::vector<Vec2> *lines) const {
     assert(samples.size() >= (unsigned int)MINIMUM_SAMPLES);
     // Standard least squares solution.
-    Mat2X sampled_xs = ExtractColumns(xs_, samples);
+    const Mat2X sampled_xs = ExtractColumns(xs_, samples);
 
     LineSolver::Solve(sampled_xs, lines);
   }
@@ -89,4 +87,4 @@ struct LineKernel {
 } // namespace robust
 } // namespace openMVG
 
-#endif // OPENMVG_ROBUST_ESTIMATION_LINEKERNEL_TEST_H_
+#endif // OPENMVG_ROBUST_ESTIMATION_LINEKERNEL_TEST_HPP

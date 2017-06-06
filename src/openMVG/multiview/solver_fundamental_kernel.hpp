@@ -26,18 +26,18 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef OPENMVG_MULTIVIEW_SOLVER_FUNDAMENTAL_KERNEL_H_
-#define OPENMVG_MULTIVIEW_SOLVER_FUNDAMENTAL_KERNEL_H_
+#ifndef OPENMVG_MULTIVIEW_SOLVER_FUNDAMENTAL_KERNEL_HPP
+#define OPENMVG_MULTIVIEW_SOLVER_FUNDAMENTAL_KERNEL_HPP
 
-#include <vector>
 #include "openMVG/multiview/two_view_kernel.hpp"
 #include "openMVG/numeric/numeric.h"
+
+#include <vector>
 
 namespace openMVG {
 namespace fundamental {
 namespace kernel {
 
-using namespace std;
 
 /**
  * Seven-point algorithm for solving for the fundamental matrix from point
@@ -52,13 +52,13 @@ using namespace std;
 struct SevenPointSolver {
   enum { MINIMUM_SAMPLES = 7 };
   enum { MAX_MODELS = 3 };
-  static void Solve(const Mat &x1, const Mat &x2, vector<Mat3> *F);
+  static void Solve(const Mat &x1, const Mat &x2, std::vector<Mat3> *F);
 };
 
 struct EightPointSolver {
   enum { MINIMUM_SAMPLES = 8 };
   enum { MAX_MODELS = 1 };
-  static void Solve(const Mat &x1, const Mat &x2, vector<Mat3> *Fs);
+  static void Solve(const Mat &x1, const Mat &x2, std::vector<Mat3> *Fs);
 };
 
 /**
@@ -80,81 +80,76 @@ struct EightPointSolver {
  */
 template<typename TMatX, typename TMatA>
 inline void EncodeEpipolarEquation(const TMatX &x1, const TMatX &x2, TMatA *A) {
-  for (int i = 0; i < x1.cols(); ++i) {
-    (*A)(i, 0) = x2(0, i) * x1(0, i);  // 0 represents x coords,
-    (*A)(i, 1) = x2(0, i) * x1(1, i);  // 1 represents y coords.
-    (*A)(i, 2) = x2(0, i);
-    (*A)(i, 3) = x2(1, i) * x1(0, i);
-    (*A)(i, 4) = x2(1, i) * x1(1, i);
-    (*A)(i, 5) = x2(1, i);
-    (*A)(i, 6) = x1(0, i);
-    (*A)(i, 7) = x1(1, i);
-    (*A)(i, 8) = 1.0;
+  for (typename TMatX::Index i = 0; i < x1.cols(); ++i) {
+    const Vec2 xx1 = x1.col(i);
+    const Vec2 xx2 = x2.col(i);
+    A->row(i) <<
+      xx2(0) * xx1(0),  // 0 represents x coords,
+      xx2(0) * xx1(1),  // 1 represents y coords.
+      xx2(0),
+      xx2(1) * xx1(0),
+      xx2(1) * xx1(1),
+      xx2(1),
+      xx1(0),
+      xx1(1),
+      1.0;
   }
 }
 
 /// Compute SampsonError related to the Fundamental matrix and 2 correspondences
 struct SampsonError {
-  static double Error(const Mat3 &F, const Vec2 &x1, const Vec2 &x2) {
-    Vec3 x(x1(0), x1(1), 1.0);
-    Vec3 y(x2(0), x2(1), 1.0);
+  static double Error(const Mat3 &F, const Vec2 &x, const Vec2 &y) {
     // See page 287 equation (11.9) of HZ.
-    Vec3 F_x = F * x;
-    Vec3 Ft_y = F.transpose() * y;
-    return Square(y.dot(F_x)) / (  F_x.head<2>().squaredNorm()
+    const Vec3 F_x = F * x.homogeneous();
+    const Vec3 Ft_y = F.transpose() * y.homogeneous();
+    return Square(y.homogeneous().dot(F_x)) / (  F_x.head<2>().squaredNorm()
                                 + Ft_y.head<2>().squaredNorm());
   }
 };
 
 struct SymmetricEpipolarDistanceError {
-  static double Error(const Mat3 &F, const Vec2 &x1, const Vec2 &x2) {
-    Vec3 x(x1(0), x1(1), 1.0);
-    Vec3 y(x2(0), x2(1), 1.0);
+  static double Error(const Mat3 &F, const Vec2 &x, const Vec2 &y) {
     // See page 288 equation (11.10) of HZ.
-    Vec3 F_x = F * x;
-    Vec3 Ft_y = F.transpose() * y;
-    return Square(y.dot(F_x)) * ( 1.0 / F_x.head<2>().squaredNorm()
-                                + 1.0 / Ft_y.head<2>().squaredNorm())
+    const Vec3 F_x = F * x.homogeneous();
+    const Vec3 Ft_y = F.transpose() * y.homogeneous();
+    return Square(y.homogeneous().dot(F_x)) *
+      ( 1.0 / F_x.head<2>().squaredNorm()
+        + 1.0 / Ft_y.head<2>().squaredNorm())
       / 4.0;  // The divide by 4 is to make this match the Sampson distance.
   }
 };
 
 struct EpipolarDistanceError {
-  static double Error(const Mat3 &F, const Vec2 &x1, const Vec2 &x2) {
+  static double Error(const Mat3 &F, const Vec2 &x, const Vec2 &y) {
     // Transfer error in image 2
     // See page 287 equation (11.9) of HZ.
-    Vec3 x(x1(0), x1(1), 1.0);
-    Vec3 y(x2(0), x2(1), 1.0);
-    Vec3 F_x = F * x;
-    return Square(F_x.dot(y)) /  F_x.head<2>().squaredNorm();
+    const Vec3 F_x = F * x.homogeneous();
+    return Square(F_x.dot(y.homogeneous())) /  F_x.head<2>().squaredNorm();
   }
 };
-typedef EpipolarDistanceError SimpleError;
 
 //-- Kernel solver for the 8pt Fundamental Matrix Estimation
-typedef two_view::kernel::Kernel<SevenPointSolver, SampsonError, Mat3>
-  SevenPointKernel;
+using SevenPointKernel = two_view::kernel::Kernel<SevenPointSolver, SampsonError, Mat3>;
 
 //-- Kernel solver for the 8pt Fundamental Matrix Estimation
-typedef two_view::kernel::Kernel<EightPointSolver, SampsonError, Mat3>
-  EightPointKernel;
+using EightPointKernel = two_view::kernel::Kernel<EightPointSolver, SampsonError, Mat3>;
 
 //-- Normalized 7pt kernel -> conditioning from HZ (Algo 11.1) pag 282
-typedef two_view::kernel::Kernel<
-  two_view::kernel::NormalizedSolver<SevenPointSolver, UnnormalizerT>,
-  SampsonError,
-  Mat3>
-  NormalizedSevenPointKernel;
+using NormalizedSevenPointKernel =
+  two_view::kernel::Kernel<
+    two_view::kernel::NormalizedSolver<SevenPointSolver, UnnormalizerT>,
+    SampsonError,
+    Mat3>;
 
 //-- Normalized 8pt kernel -> conditioning from HZ (Algo 11.1) pag 282
-typedef two_view::kernel::Kernel<
-  two_view::kernel::NormalizedSolver<EightPointSolver, UnnormalizerT>,
-  SampsonError,
-  Mat3>
-  NormalizedEightPointKernel;
+using NormalizedEightPointKernel =
+  two_view::kernel::Kernel<
+    two_view::kernel::NormalizedSolver<EightPointSolver, UnnormalizerT>,
+    SampsonError,
+    Mat3>;
 
 }  // namespace kernel
 }  // namespace fundamental
 }  // namespace openMVG
 
-#endif  // OPENMVG_MULTIVIEW_SOLVER_FUNDAMENTAL_KERNEL_H_
+#endif  // OPENMVG_MULTIVIEW_SOLVER_FUNDAMENTAL_KERNEL_HPP

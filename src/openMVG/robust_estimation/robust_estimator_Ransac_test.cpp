@@ -5,11 +5,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include "openMVG/numeric/numeric.h"
 #include "openMVG/robust_estimation/robust_estimator_lineKernel_test.hpp"
 #include "openMVG/robust_estimation/robust_estimator_Ransac.hpp"
 #include "openMVG/robust_estimation/score_evaluator.hpp"
-
-#include "openMVG/numeric/numeric.h"
 
 #include "testing/testing.h"
 
@@ -63,7 +62,7 @@ TEST(MaxConsensusLineFitter, TooFewPoints) {
         3;   // y = 2x + 1 with x = 1
   LineKernel kernel(xy);
   std::vector<size_t> vec_inliers;
-  Vec2 model = RANSAC(kernel, ScorerEvaluator<LineKernel>(0.3), &vec_inliers);
+  RANSAC(kernel, ScorerEvaluator<LineKernel>(0.3), &vec_inliers);
   CHECK_EQUAL(0, vec_inliers.size());
 }
 
@@ -78,7 +77,7 @@ TEST(MaxConsensusLineFitter, RealisticCase) {
   Mat2X xy(2, NbPoints);
 
   Vec2 GTModel; // y = 2x + 1
-  GTModel <<  -2.0, 6.3;
+  GTModel << -2.0, 6.3;
 
   //-- Build the point list according the given model
   for(int i = 0; i < NbPoints; ++i)  {
@@ -87,7 +86,7 @@ TEST(MaxConsensusLineFitter, RealisticCase) {
 
   //-- Add some noise (for the asked percentage amount)
   int nbPtToNoise = (int) NbPoints*inlierPourcentAmount/100.0;
-  vector<size_t> vec_samples; // Fit with unique random index
+  std::vector<size_t> vec_samples; // Fit with unique random index
   UniformSample(nbPtToNoise, NbPoints, &vec_samples);
   for(size_t i = 0; i <vec_samples.size(); ++i)
   {

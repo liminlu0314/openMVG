@@ -5,11 +5,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef OPENMVG_COLORHARMONIZATION_SELECTORINTERFACE_H
-#define OPENMVG_COLORHARMONIZATION_SELECTORINTERFACE_H
+#ifndef OPENMVG_COLOR_HARMONIZATION_SELECTION_INTERFACE_HPP
+#define OPENMVG_COLOR_HARMONIZATION_SELECTION_INTERFACE_HPP
 
 #include "openMVG/image/image.hpp"
+
 #include "third_party/histogram/histogram.hpp"
+
 #include <string>
 
 namespace openMVG {
@@ -25,7 +27,7 @@ public:
     _sLeftImage( sLeftImage ), _sRightImage( sRightImage )
   {}
 
-  virtual ~commonDataByPair() {}
+  virtual ~commonDataByPair() = default ; 
 
   /**
    * Compute mask forthe two images
@@ -35,7 +37,7 @@ public:
    *
    * \return True if(mask not empty).
    */
-  virtual bool computeMask( Image< unsigned char > & maskLeft, Image< unsigned char > & maskRight ) = 0;
+  virtual bool computeMask( image::Image< unsigned char > & maskLeft, image::Image< unsigned char > & maskRight ) = 0;
 
   /**
    * Compute Histogram for the color's masked data
@@ -49,9 +51,9 @@ public:
   template< typename ImageType >
   static void computeHisto(
     Histogram< double > & histo,
-    const Image< unsigned char >& mask,
+    const image::Image< unsigned char >& mask,
     size_t channelIndex,
-    const Image< ImageType >& image )
+    const image::Image< ImageType >& image )
   {
     for( int j = 0; j < mask.Height(); ++j )
     {
@@ -76,4 +78,4 @@ protected:
 }  // namespace color_harmonization
 }  // namespace openMVG
 
-#endif // OPENMVG_COLORHARMONIZATION_SELECTORINTERFACE_H
+#endif // OPENMVG_COLOR_HARMONIZATION_SELECTION_INTERFACE_HPP

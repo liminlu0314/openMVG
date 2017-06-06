@@ -39,8 +39,8 @@ template<typename Matrix >
 void BuildActionMatrix(Matrix & L, const Mat &x, const Mat &y)  {
 
   const Mat::Index n = x.cols();
-  for (int i = 0; i < n; ++i) {
-    int j = 2 * i;
+  for (Mat::Index i = 0; i < n; ++i) {
+    Mat::Index j = 2 * i;
     L(j, 0) = x(0, i);
     L(j, 1) = x(1, i);
     L(j, 2) = 1.0;
@@ -70,7 +70,7 @@ void FourPointSolver::Solve(const Mat &x, const Mat &y, vector<Mat3> *Hs) {
   if (n == 4)  {
     // In the case of minimal configuration we use fixed sized matrix to let
     //  Eigen and the compiler doing the maximum of optimization.
-    typedef Eigen::Matrix<double, 16, 9> Mat16_9;
+    using Mat16_9 = Eigen::Matrix<double, 16, 9>;
     Mat16_9 L = Mat::Zero(16, 9);
     BuildActionMatrix(L, x, y);
     Nullspace(&L, &h);

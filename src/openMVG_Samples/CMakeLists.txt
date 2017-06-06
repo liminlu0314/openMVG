@@ -1,12 +1,22 @@
-ADD_SUBDIRECTORY(siftPutativeMatches)
-ADD_SUBDIRECTORY(robust_homography)
-ADD_SUBDIRECTORY(robust_homography_guided)
-ADD_SUBDIRECTORY(robust_fundamental)
-ADD_SUBDIRECTORY(robust_essential)
-ADD_SUBDIRECTORY(robust_essential_ba)
-ADD_SUBDIRECTORY(undisto_Brown)
+add_subdirectory(cameras_undisto_Brown)
 
-ADD_SUBDIRECTORY(exifParsing)
-ADD_SUBDIRECTORY(sensorWidthDatabase)
+add_subdirectory(multiview_robust_estimation_tutorial)
+add_subdirectory(multiview_robust_homography)
+add_subdirectory(multiview_robust_homography_guided)
+add_subdirectory(multiview_robust_fundamental)
+add_subdirectory(multiview_robust_fundamental_guided)
+add_subdirectory(multiview_robust_essential)
+add_subdirectory(multiview_robust_essential_spherical)
+add_subdirectory(multiview_robust_essential_ba)
 
-ADD_SUBDIRECTORY(kvld_filter)
+add_subdirectory(exif_Parsing)
+
+add_subdirectory(features_repeatability)
+add_subdirectory(features_affine_demo)
+add_subdirectory(features_kvld_filter)
+add_subdirectory(features_siftPutativeMatches)
+add_subdirectory(features_image_matching)
+
+add_subdirectory(geodesy_show_exif_gps_position)
+add_subdirectory(image_spherical_to_pinholes)
+

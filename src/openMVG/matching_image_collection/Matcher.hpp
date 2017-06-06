@@ -5,29 +5,42 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#pragma once
+#ifndef OPENMVG_MATCHING_IMAGE_COLLECTION_MATCHER_HPP
+#define OPENMVG_MATCHING_IMAGE_COLLECTION_MATCHER_HPP
 
 #include "openMVG/matching/indMatch.hpp"
-#include <map>
+
 #include <string>
 #include <vector>
 
 namespace openMVG {
+
+namespace sfm {
+  struct Regions_Provider;
+  struct SfM_Data;
+} // namespace sfm 
+
+namespace matching_image_collection {
 
 /// Implementation of an Image Collection Matcher
 /// Compute putative matches between a collection of pictures
 class Matcher
 {
   public:
-  Matcher() {};
+  Matcher() = default ;
 
-  virtual ~Matcher() {};
+  virtual ~Matcher() = default ;
 
-  /// Build point indexes correspondences lists between images ids
+  /// Find corresponding points between some pair of view Ids
   virtual void Match(
-    const std::vector<std::string> & vec_filenames,
-    matching::PairWiseMatches & map_putatives_matches // the output pairwise photometric corresponding points
-    )const = 0;
+    const sfm::SfM_Data & sfm_data,
+    const std::shared_ptr<sfm::Regions_Provider> & regions_provider,
+    const Pair_Set & pairs, // list of pair to consider for matching
+    matching::PairWiseMatchesContainer & map_putatives_matches // the output pairwise photometric corresponding points
+    ) const = 0;
 };
 
-}; // namespace openMVG
+} // namespace matching_image_collection
+} // namespace openMVG
+
+#endif // OPENMVG_MATCHING_IMAGE_COLLECTION_MATCHER_HPP
